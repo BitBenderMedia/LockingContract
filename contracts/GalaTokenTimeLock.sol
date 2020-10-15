@@ -7,7 +7,7 @@ contract GalaTokenTimeLock {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     IERC20 public token;
-    uint256 public const LOCKED_PERIOD = 90 days;
+    uint256 public constant LOCKED_PERIOD = 90 days;
 
     struct LockedToken {
         address depositor;
