@@ -1,13 +1,13 @@
 pragma solidity ^0.6.0;
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract GalaTokenTimeLock {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     IERC20 public token;
-    uint256 public LOCKED_PERIOD = 15 days;
+    uint256 public const LOCKED_PERIOD = 90 days;
 
     struct LockedToken {
         address depositor;
@@ -32,11 +32,8 @@ contract GalaTokenTimeLock {
         uint256 indexed _time
     );
 
-    constructor(IERC20 _token, uint256 _lockPeriod) public {
+    constructor(IERC20 _token) public {
         token = _token;
-        if (_lockPeriod > 0) {
-            LOCKED_PERIOD = _lockPeriod;
-        }
     }
 
     function deposit(uint256 _amount) public {
