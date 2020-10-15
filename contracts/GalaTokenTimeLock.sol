@@ -7,7 +7,7 @@ contract GalaTokenTimeLock {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     IERC20 public token;
-    uint256 public constant LOCKED_PERIOD = 90 days;
+    uint256 public LOCKED_PERIOD = 15 days;
 
     struct LockedToken {
         address depositor;
@@ -32,8 +32,11 @@ contract GalaTokenTimeLock {
         uint256 indexed _time
     );
 
-    constructor(IERC20 _token) public {
+    constructor(IERC20 _token, uint256 _lockPeriod) public {
         token = _token;
+        if (_lockPeriod > 0) {
+            LOCKED_PERIOD = _lockPeriod;
+        }
     }
 
     function deposit(uint256 _amount) public {
@@ -67,6 +70,15 @@ contract GalaTokenTimeLock {
         );
     }
 
+    function withdrawAllPossible(address _depositor) public {
+        uint256 i = 0;
+        for (i = 0; i < lockIDs[_depositor].length; i++) {
+            if (isWithdrawnable(lockIDs[_depositor][i])) {
+                withdraw(lockIDs[_depositor][i]);
+            }
+        }
+    }
+
     function isWithdrawnable(uint256 _lockID) public view returns (bool) {
         return
             (_lockID < lockInfo.length) &&
@@ -81,6 +93,27 @@ contract GalaTokenTimeLock {
 
     function getTotalNumDeposits() public view returns (uint256) {
         return lockInfo.length;
+    }
+
+    function getUnlockTime(uint256 _lockID) public view returns (uint256) {
+        return lockInfo[_lockID].unlockTime;
+    }
+
+    function getTotalWithdrawnableAmount(address _depositor)
+        public
+        view
+        returns (uint256)
+    {
+        if (lockIDs[_depositor].length == 0) return 0;
+
+        uint256 ret = 0;
+        uint256 i = 0;
+        for (i = 0; i < lockIDs[_depositor].length; i++) {
+            if (isWithdrawnable(lockIDs[_depositor][i])) {
+                ret = ret.add(lockInfo[lockIDs[_depositor][i]].amount);
+            }
+        }
+        return ret;
     }
 
     function getWithdrawnableList(address _depositor)
@@ -102,7 +135,7 @@ contract GalaTokenTimeLock {
         if (count > 0) {
             ids = new uint256[](count);
             for (i = 0; i < count; i++) {
-                ids[i] = i;
+                ids[i] = initials[i];
             }
         }
     }
