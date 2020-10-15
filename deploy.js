@@ -4,6 +4,10 @@ const Web3 = require("web3");
 const contract = require("./build/contracts/GalaTokenTimeLock.json");
 const PrivateKeyProvider = require("truffle-privatekey-provider");
 const tokenAddress = process.argv[2];
+const time = '0';
+if (process.argv[3]) {
+    time = process.argv[3];
+}
 
 const privateKey = process.env.PRIVATE_KEY;
 const web3url = process.env.WEB3URL;
